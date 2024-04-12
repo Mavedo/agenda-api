@@ -3,12 +3,6 @@ import pandas as pd
 import re #for regex
 
 
-client = MongoClient('mongodb+srv://mverad:mverad@cluster0.uavhcn6.mongodb.net/')
-
-#DB and collection to be accessed
-db = client['Agenda']
-coll = db['Agenda']
-
 #Create new agenda entry
 def new_contact(coll):
   """We integrate all the information of the users input and add it to the MongoDB"""
@@ -71,7 +65,7 @@ def get_email():
 
 def look_up_contact(coll):
   """ Function returns the result of looking up for a contact by name"""
-  name = input('Nombre o Apellido: ')
+  name = input('\nNombre o Apellido: ')
   regex_pattern = f'.*{re.escape(name)}.*'
   result = list(coll.find({'nombre': {'$regex': regex_pattern, '$options': 'i'}}, {'_id': 0}))
   if len(result) == 0:
@@ -85,7 +79,7 @@ def delete_update_main(coll, func):
   """
 
   while True:
-    print("Para realizar esta acción requieres el nombre completo, tal y como está en la agenda.")
+    print("\nPara realizar esta acción requieres el nombre completo, tal y como está en la agenda.")
     get_contact = input("Escribe 'y' si quieres buscar un contacto o 'n' si ya tienes el nombre completo: ")
     if get_contact == 'y':
       look_up_result = look_up_contact(coll)
@@ -96,9 +90,9 @@ def delete_update_main(coll, func):
     else:
       print('Entrada inválida. Por favor, escribe "y" o "n".')
 
-def delete_contact2 (coll):
+def delete_contact(coll):
   """Función que se agrega a delete_update_main para completar la acción de borrar contacto."""
-  name = input('Escribe el nombre del contacto a eliminar de la agenda: ')
+  name = input('\nEscribe el nombre del contacto a eliminar de la agenda: ')
   delete_it = coll.find_one_and_delete({'nombre': name}, projection={'_id': False})
   if delete_it:
     print('Contacto eliminado exitosamente')
@@ -106,9 +100,9 @@ def delete_contact2 (coll):
   else:
     return 'Contacto no eliminado o no encontrado'
 
-def update_contact2(coll):
+def update_contact(coll):
   """Función que se agrega a delete_update_main para completar la acción de actualizar un contacto."""
-  name = input('Escribe el nombre del contacto a actualizar: ')
+  name = input('\nEscribe el nombre del contacto a actualizar: ')
   field_choice = input('Si quieres actualizar el nombre escribe 1, el teléfono escribe 2, el email escribe 3: ')
   options = ['1','2','3']
   if field_choice in options:
@@ -126,3 +120,41 @@ def update_contact2(coll):
       return 'No se encontró el contacto o no se realizaron cambios.'
   else:
     print('Opción inválida. Por favor, selecciona 1, 2 o 3.')
+
+def print_all_agenda(coll):
+  """"Print all documents in the collection"""
+  agenda = coll.find({},{'_id': 0})
+  for contact in agenda:
+    print(contact)
+
+def menu_display():
+  try:
+    client = MongoClient('mongodb+srv://mverad:mverad@cluster0.uavhcn6.mongodb.net/')
+    db = client['Agenda']
+    coll = db['Agenda']
+    while True:
+      options = ['1','2','3','4','5','6']
+      print('\nMenú de opciones:\n1. Crear contacto nuevo\n2. Buscar contacto\n3. Actualizar contacto\n4. Borrar contacto\n5. Ver toda la agenda\n6. Salir')
+      user_choice = input('\nElija la opción deseada: ')
+      if user_choice in options:
+        if user_choice == '1':
+          new_contact(coll)
+        elif user_choice == '2':
+          result = look_up_contact(coll)
+          print(result)
+        elif user_choice == '3':
+          delete_update_main(coll, update_contact)
+        elif user_choice == '4':
+          delete_update_main(coll, delete_contact)
+        elif user_choice == '5':
+          all_agenda(coll)
+        elif user_choice == '6':
+          print('Agenda cerrada.')
+          break
+        else:
+          print('Ingrese una opción válida.')
+          continue
+  except Exception as e:
+    print(f'Error: {e}')
+  finally:
+    client.close()

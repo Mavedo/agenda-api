@@ -138,14 +138,13 @@ def menu_display():
       user_choice = input('\nElija la opción deseada: ')
       if user_choice in options:
         if user_choice == '1':
-          new_contact(coll)
+          print(new_contact(coll))
         elif user_choice == '2':
-          result = look_up_contact(coll)
-          print(result)
+          print(look_up_contact(coll))
         elif user_choice == '3':
-          delete_update_main(coll, update_contact)
+          print(delete_update_main(coll, update_contact))
         elif user_choice == '4':
-          delete_update_main(coll, delete_contact)
+          print(delete_update_main(coll, delete_contact))
         elif user_choice == '5':
           print_all_agenda(coll)
         elif user_choice == '6':

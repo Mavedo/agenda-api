@@ -6,8 +6,8 @@ import re #for regex
 #Create new agenda entry
 def new_contact(coll):
   """We integrate all the information of the users input and add it to the MongoDB"""
-  num = get_phone_number()
   name = get_name()
+  num = get_phone_number()
   email = get_email()
   new_contact = {'nombre': name,
                  'numero': num,

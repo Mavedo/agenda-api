@@ -147,7 +147,7 @@ def menu_display():
         elif user_choice == '4':
           delete_update_main(coll, delete_contact)
         elif user_choice == '5':
-          all_agenda(coll)
+          print_all_agenda(coll)
         elif user_choice == '6':
           print('Agenda cerrada.')
           break
@@ -158,3 +158,5 @@ def menu_display():
     print(f'Error: {e}')
   finally:
     client.close()
+
+menu_display()

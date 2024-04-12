@@ -112,7 +112,7 @@ def update_contact(coll):
     elif field_choice == str(2):
       new_value = {'$set': {'numero': get_phone_number()}}
     elif field_choice == str(3):
-      new_value = {'$set': {'email': get_email}}
+      new_value = {'$set': {'email': get_email()}}
     result = coll.update_one({'nombre': name}, new_value)
     if result.modified_count > 0:
       return 'Contacto actualizado exitosamente.'

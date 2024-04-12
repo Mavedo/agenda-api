@@ -157,5 +157,3 @@ def menu_display():
     print(f'Error: {e}')
   finally:
     client.close()
-
-menu_display()

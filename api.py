@@ -64,6 +64,7 @@ def new_contact():
                         'numero': num,
                         'email': email}
         coll.insert_one(new_contact)
+        new_contact.pop('_id', None)
         response = jsonify({
             'status_code': 200,
             'contacto': new_contact,

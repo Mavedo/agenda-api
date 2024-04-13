@@ -36,4 +36,53 @@ def look_up_contact():
     client.close()
     return response
 
+@app.route('/agregar', methods=['POST'])
+def new_contact():
+    """We integrate all the information of the users input and add it to the MongoDB"""
+    coll, client = open_mongo_db()
+    name = request.args.get('nombre', type=str)
+    last_name = request.args.get('apellidos', type=str)
+    num = request.args.get('numero', type=int)
+    email = request.args.get('email', type=str)
+    number_val = number_validation(num)
+    email_val = email_validation(email)
+
+    if not number_val:
+        response = jsonify({
+            'status_code':400,
+            'message':'El número telefónico debe constar de 10 dígitos'
+        })
+
+    elif not email_val:
+        response = jsonify({
+            'status_code':400,
+            'message':'El formato del email no es válido'
+        })
+
+    elif name and last_name and number_val and email_val: 
+        new_contact = {'nombre': name + " " + last_name,
+                        'numero': num,
+                        'email': email}
+        coll.insert_one(new_contact)
+        response = jsonify({
+            'status_code': 200,
+            'contacto': new_contact,
+            'message': 'Se añadió correctamente el contacto'
+            })
+    else:
+        response = jsonify({
+            'status_code':400,
+            'message':'No se añadió el contacto. Revisar los datos'
+        })
+    client.close()     
+    return response
+
+def number_validation(num):
+    return len(str(num)) == 10
+
+def email_validation(email):
+    email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
+    return bool(re.match(email_regex, email))
+
+
 app.run(debug=True, host='localhost', port=5000)

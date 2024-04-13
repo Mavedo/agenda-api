@@ -17,8 +17,8 @@ def open_mongo_db():
     
 @app.route('/buscar', methods=['POST'])
 def look_up_contact():
-    coll, client = open_mongo_db()
     """ Function returns the result of looking up for a contact by name"""
+    coll, client = open_mongo_db()
     name = request.args.get('nombre', type=str)
     regex_pattern = f'.*{re.escape(name)}.*'
     result = list(coll.find({'nombre': {'$regex': regex_pattern, '$options': 'i'}}, {'_id': 0}))

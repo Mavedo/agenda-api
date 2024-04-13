@@ -85,5 +85,24 @@ def email_validation(email):
     email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
     return bool(re.match(email_regex, email))
 
+@app.route('/nombres', methods=['GET'])
+def print_all_names(coll):
+    coll, client = open_mongo_db()
+    agenda = list(coll.find({},{'_id':0}))
+    if len(agenda) == 0:
+        response = jsonify({
+        'status_code' : 400,
+        'message': 'No se encontraron contactos en la lista'
+    })
+    else:
+        names_list = [agenda[i]['nombre'] for i in range(len(agenda))]
+        response = jsonify({
+        'status_code' : 200,
+        'contacts': names_list,
+        'message': 'No se encontraron contactos en la lista'
+    })
+    client.close()
+    return response
+
 
 app.run(debug=True, host='localhost', port=5000)

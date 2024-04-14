@@ -110,19 +110,36 @@ def print_all_names(coll):
     client.close()
     return response
 
+@app.route('/actualizar', methods=['POST'])
 def update_contact():
-    coll, client = open_mongo_db()
+    try:
+        coll, client = open_mongo_db()
+    except Exception as e:
+        return jsonify({
+            'status_code':500,
+            'message':f'Error al conectarse a la base de datos {str(e)}'
+        })
     name = request.args.get('nombre',type=str)
-    name_validation = name_in_agenda(name, coll)
+    name_check = name_in_agenda(name, coll)
     value_to_update = request.args.get('dato',type=str).lower()
     new_value = request.args.get('nuevo')
     
-    if not name_validation:
+    if not name_check:
         response = jsonify({
             "status_code":400,
             "message":"Nombre del contacto no se encontró en la agenda"
         })
-    if (value_to_update == 'numero' or 'telefono'):
+    elif not value_to_update:
+        response = jsonify({
+            "status_code":400,
+            "message":"No se proporcionó el dato a ser actualizado (nombre, correo o email)"
+        })
+    elif not new_value:
+        response = jsonify({
+            "status_code":400,
+            "message":"No se proporcionó el nuevo dato para actualizar"
+        })      
+    elif value_to_update in ['numero', 'telefono','número','teléfono']:
         if not number_validation(new_value):
             response = jsonify({
                 "status_code":400,
@@ -132,15 +149,33 @@ def update_contact():
             coll.update_one({'nombre':name}, {'$set': {'numero': new_value}})
             response = jsonify({
                 'status_code':200,
-                'message': f''
+                'message': f'El número del contacto {name} fue actualizado correctamente'
             })
-        pass
-    elif (value_to_update == 'email' or 'mail'):
+    elif value_to_update in ['email', 'mail']:
         if not email_validation(new_value):
             response = jsonify({
                 "status_code": 400,
                 "message":f"{new_value} no cumple con el formato de correo electrónico"
             })
+        else:
+            coll.update_one({'nombre':name}, {'$set': {'email': new_value}})
+            response = jsonify({
+                'status_code':200,
+                'message': f'El email del contacto {name} fue actualizado correctamente'
+            })
+    elif value_to_update in ['nombre', 'nombres']:
+        coll.update_one({'nombre':name}, {'$set': {'nombre': new_value}})
+        response = jsonify({
+            'status_code': 200,
+            'message': f'El nombre del contacto {name} fue actualizado correctamente'
+        })
+    else:
+        response = jsonify({
+            'status_code': 400,
+            'message': 'No se actualizó la agenda. Revisar los datos proporcionados'
+        })
+    client.close()
+    return response
 
 def name_in_agenda(name, coll):
     return coll.find_one({'nombre': {'$regex': f'^{re.escape(name)}$', '$options': 'i'}}) is not None

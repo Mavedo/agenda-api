@@ -20,7 +20,13 @@ def open_mongo_db():
 @app.route('/buscar', methods=['POST'])
 def look_up_contact():
     """ Function returns the result of looking up for a contact by name"""
-    coll, client = open_mongo_db()
+    try:
+        coll, client = open_mongo_db()
+    except Exception as e:
+        return jsonify({
+            'status_code':500,
+            'message':f'Error al conectarse a la base de datos {str(e)}'
+        })
     name = request.args.get('nombre', type=str)
     regex_pattern = f'.*{re.escape(name)}.*'
     result = list(coll.find({'nombre': {'$regex': regex_pattern, '$options': 'i'}}, {'_id': 0}))
@@ -42,7 +48,13 @@ def look_up_contact():
 @app.route('/agregar', methods=['POST'])
 def new_contact():
     """We integrate all the information of the users input and add it to the MongoDB"""
-    coll, client = open_mongo_db()
+    try:
+        coll, client = open_mongo_db()
+    except Exception as e:
+        return jsonify({
+            'status_code':500,
+            'message':f'Error al conectarse a la base de datos {str(e)}'
+        })
     name = request.args.get('nombre', type=str)
     last_name = request.args.get('apellidos', type=str)
     num = request.args.get('numero', type=int)
@@ -93,7 +105,13 @@ def email_validation(email):
 def print_all_names(coll):
     """ Está función se utiliza con el método GET, para retornar todos los nombres
     de la base de datos. Solo los nombres."""
-    coll, client = open_mongo_db()
+    try:
+        coll, client = open_mongo_db()
+    except Exception as e:
+        return jsonify({
+            'status_code':500,
+            'message':f'Error al conectarse a la base de datos {str(e)}'
+        })
     agenda = list(coll.find({},{'_id':0}))
     if len(agenda) == 0:
         response = jsonify({
@@ -109,7 +127,7 @@ def print_all_names(coll):
     })
     client.close()
     return response
-
+#update
 @app.route('/actualizar', methods=['POST'])
 def update_contact():
     try:
@@ -179,5 +197,9 @@ def update_contact():
 
 def name_in_agenda(name, coll):
     return coll.find_one({'nombre': {'$regex': f'^{re.escape(name)}$', '$options': 'i'}}) is not None
+
+#delete
+def delete_contact():
+    pass
 
 app.run(debug=True, host='localhost', port=5000)

@@ -17,7 +17,7 @@ def open_mongo_db():
     return coll, client
 
 #Read
-@app.route('/buscar', methods=['POST'])
+@app.route('/buscar', methods=['GET'])
 def look_up_contact():
     """ Function returns the result of looking up for a contact by name"""
     try:
@@ -33,13 +33,13 @@ def look_up_contact():
     if len(result) == 0:
         response = jsonify({
             'status_code': 400,
-            'message':'Contacto no encontrado'
+            'message':'Contacto no se encontró'
         })
     else:
         response = jsonify({
             'status_code': 200,
             'data': result,
-            'message':'Se encontró el contacto'
+            'message':'Se encontró el/los contacto(s)'
         })
     client.close()
     return response
@@ -128,7 +128,7 @@ def print_all_names(coll):
     client.close()
     return response
 #update
-@app.route('/actualizar', methods=['POST'])
+@app.route('/actualizar', methods=['PUT'])
 def update_contact():
     try:
         coll, client = open_mongo_db()
@@ -199,7 +199,30 @@ def name_in_agenda(name, coll):
     return coll.find_one({'nombre': {'$regex': f'^{re.escape(name)}$', '$options': 'i'}}) is not None
 
 #delete
+@app.route('/eliminar', methods=['DELETE'])
 def delete_contact():
-    pass
+    try:
+        coll, client = open_mongo_db()
+    except Exception as e:
+        return jsonify({
+            'status_code':500,
+            'message':f'Error al conectarse a la base de datos {str(e)}'
+        })
+    name = request.args.get('nombre',type=str)
+    name_check = name_in_agenda(name, coll)
+    if not name_check:
+        response = jsonify({
+            'status_code': 400,
+            'message': "El nombre del contacto no se encontró en la agenda"
+        })
+    else:
+        contacto = coll.find_one_and_delete({'nombre': name}, projection={'_id': False})
+        response = jsonify({
+            'status_code': 200,
+            'datos': contacto,
+            'message': 'Contacto eliminado de la agenda'
+        })
+    client.close()
+    return response
 
 app.run(debug=True, host='localhost', port=5000)

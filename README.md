@@ -6,10 +6,10 @@ Welcome to the documentation for My API. This API allows you to manage contacts 
 
 To get started with the API, you'll need to install Python, Flask and Pymongo. Then, you can clone the repository and install the dependencies.
 
-### Endpoints:
+## Endpoints:
 
 
-'GET /buscar':
+###### 'GET /buscar':
 
 Parameter: 'nombre'
 - The name is case insensitive, bust if there are special characters in the names such as accents, they must be typed.
@@ -18,13 +18,13 @@ Parameter: 'nombre'
 example: '/buscar?nombre=martín'
 
 
-'GET /nombres':
+###### 'GET /nombres':
 
 - Returns all names for the contacts in the agenda
 - Receives no parameters
 
 
-'POST /agregar':
+###### 'POST /agregar':
 
 Parameters: nombre, apellidos, numero, email.
 
@@ -38,7 +38,7 @@ email: Receives an email address under the classic format of username@site.com
 example: '/agregar?nombre=Jesús Alfredo&apellido=Ramírez Estrada&numero=1234567890&email=jesusalfredo@mail.com'
 
 
-'PUT /actualizar'
+###### 'PUT /actualizar'
 
 Parameters: nombre, dato, nuevo.
 
@@ -51,7 +51,7 @@ nuevo: The new value for the provided category is passed for updating.
 example: '/actualizar?nombre=Jesús Alfredo Ramírez Estrada&dato=email&nuevo=nuevocorreo@mail.com'
 
 
-'DELETE /eliminar'
+###### 'DELETE /eliminar'
 
 Parameters: nombre
 
